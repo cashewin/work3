@@ -57,7 +57,7 @@ jobs:
             curl -L -o assets/bgmusic.mp3 "${{ github.event.client_payload.background_music_url }}"
           fi
 
-      - name: 📝 Save subtitle text
+      - name: 📝 Save subtitle text with UTF-8 encoding
         if: github.event.client_payload.subtitle_text != '' && github.event.client_payload.subtitle_text != null
         run: |
           cat > /tmp/subtitle_text.txt <<'EOF'
@@ -143,9 +143,9 @@ jobs:
 
           echo "✅ Base vertical video created"
 
-          # Generate subtitles with perfect audio sync if subtitle text is provided
+          # Generate multilingual subtitles with perfect audio sync
           if [ -f /tmp/subtitle_text.txt ]; then
-            echo "📝 Generating movie-quality subtitles with perfect audio sync..."
+            echo "📝 Generating multilingual subtitles with perfect audio sync..."
             SUBTITLE_TEXT=$(cat /tmp/subtitle_text.txt)
             
             # Split text into words for timing calculation
@@ -197,13 +197,15 @@ jobs:
               
               echo "✅ Subtitle file created with $((SUBTITLE_NUM - 1)) entries (perfectly synced)"
               
-              # Apply MOVIE-STYLE subtitles - BOTTOM positioned like real films
-              # Using Alignment=2 (bottom-center) with MarginV=45 for proper bottom placement (25% closer)
+              # Apply MULTILINGUAL subtitles for supported languages
+              # Using Noto Sans Bold which supports all 6 application languages
+              # English, Hindi (हिन्दी), Spanish, French, German, Russian (Русский)
+              # Alignment=2 (bottom-center) with MarginV=45 for proper bottom placement
               ffmpeg -y -i output/temp.mp4 \
-                -vf "subtitles=output/subs.srt:force_style='FontName=Arial,FontSize=12,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BackColour=&H80000000&,BorderStyle=4,Outline=2,Shadow=0,MarginV=45,Alignment=2'" \
+                -vf "subtitles=output/subs.srt:force_style='FontName=Noto Sans,Bold=1,FontSize=12,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BackColour=&H80000000&,BorderStyle=4,Outline=2,Shadow=0,MarginV=45,Alignment=2'" \
                 -c:a copy output/temp_subs.mp4
               mv output/temp_subs.mp4 output/temp.mp4
-              echo "✅ Movie-style subtitles applied at BOTTOM (25% closer to edge)"
+              echo "✅ Multilingual subtitles applied for: English, Hindi, Spanish, French, German, Russian"
             fi
           fi
 
